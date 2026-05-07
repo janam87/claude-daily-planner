@@ -1,6 +1,59 @@
 # Daily Planner
 
+[![CI](https://github.com/janam87/claude-daily-planner/actions/workflows/ci.yml/badge.svg)](https://github.com/janam87/claude-daily-planner/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-7c3aed.svg)](https://docs.claude.com/en/docs/claude-code/plugins)
+
 A Claude Code plugin that turns Claude into your daily journal + scheduler. **Bidirectional** sync with Google Calendar and Todoist — pull your day in, edit in markdown, push changes back. Asks you for an end-of-day reflection. Archives every day in plain markdown so you own your data forever.
+
+## Demo
+
+```
+$ /plan-today
+
+✓ Read yesterday's archive — 2 carry-forward items
+✓ Fetched 4 calendar events for today
+✓ Fetched 11 Todoist tasks (3 P1, 5 P2, 3 P3)
+✓ Wrote ~/journal/today.md
+
+# Monday, May 7, 2026
+
+## Schedule
+- [ ] 09:00–09:30 — Team standup @ Meet
+- [ ] 10:00–12:00 — Focus time
+- [ ] 14:00–15:00 — 1:1 with Sam
+- [ ] 16:00–17:00 — Code review
+
+## Tasks
+### Priority
+- [ ] Ship invoice rewrite (todoist:8123) (carried forward)
+- [ ] Reply to legal team (todoist:8124)
+
+### Other
+- [ ] Update onboarding doc (todoist:8125)
+...
+```
+
+Then through the day:
+
+```
+$ /quick-add Call dentist tomorrow 4pm P2 #Personal @health remind me 30m before
+✓ Created task 8201 in #Personal, due tomorrow 16:00, P2, label @health
+✓ Reminder set: 30m before
+✓ today.md not updated (task is for tomorrow)
+```
+
+End of day:
+
+```
+$ /review-day
+✓ Marked 9/13 tasks complete in Todoist
+✓ Archived to ~/journal/days/2026-05-07.md
+✓ Cleared today.md
+
+📊 9/13 done · mood 4/5 · energy 3/5
+🎯 carry forward: "ship invoice rewrite"
+```
 
 ```
 ~/journal/

@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate plugin structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin.json
+        run: |
+          if [ ! -f .claude-plugin/plugin.json ]; then
+            echo "::error::.claude-plugin/plugin.json missing"
+            exit 1
+          fi
+          jq empty .claude-plugin/plugin.json
+          jq -e '.name and .version and .description and .license' .claude-plugin/plugin.json > /dev/null
+          echo "✓ plugin.json valid"
+
+      - name: Check command frontmatter
+        run: |
+          missing=0
+          for f in commands/*.md; do
+            if ! head -1 "$f" | grep -q '^---$'; then
+              echo "::error file=$f::missing frontmatter"
+              missing=1
+            fi
+            if ! grep -q '^description:' "$f"; then
+              echo "::error file=$f::missing 'description' in frontmatter"
+              missing=1
+            fi
+          done
+          [ $missing -eq 0 ] && echo "✓ all commands have valid frontmatter"
+          exit $missing
+
+      - name: Check templates exist
+        run: |
+          test -f templates/daily.md
+          test -f templates/weekly.md
+          echo "✓ templates present"
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Grep for obvious leaks
+        run: |
+          # 32+ hex tokens
+          if grep -rEn '[a-f0-9]{32,}' --include='*.md' --include='*.json' --include='*.yml' .; then
+            echo "::error::potential hex token leaked"
+            exit 1
+          fi
+          # Bearer literals (not env-var refs)
+          if grep -rEn 'Bearer [A-Za-z0-9_-]{20,}' --include='*.md' . | grep -v '\$TODOIST_API_TOKEN\|\$.*_TOKEN'; then
+            echo "::error::Bearer literal found (use env var)"
+            exit 1
+          fi
+          echo "✓ no obvious leaks"
+
+  markdown:
+    name: Markdown lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: |
+            *.md
+            commands/*.md
+            templates/*.md
+          config: |
+            {
+              "default": true,
+              "MD013": false,
+              "MD033": false,
+              "MD041": false
+            }
