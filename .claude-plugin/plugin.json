@@ -1,0 +1,22 @@
+{
+  "name": "daily-planner",
+  "version": "0.2.0",
+  "description": "Bidirectional daily planning system. Pull tasks + calendar into markdown, edit, push back. Powered by Claude Code, Google Calendar, and Todoist.",
+  "author": {
+    "name": "janam87",
+    "url": "https://github.com/janam87"
+  },
+  "homepage": "https://github.com/janam87/claude-daily-planner",
+  "repository": "https://github.com/janam87/claude-daily-planner",
+  "license": "MIT",
+  "keywords": [
+    "productivity",
+    "planning",
+    "journal",
+    "todoist",
+    "google-calendar",
+    "diary",
+    "bidirectional-sync",
+    "task-management"
+  ]
+}
